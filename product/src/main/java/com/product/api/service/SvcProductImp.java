@@ -32,7 +32,23 @@ public class SvcProductImp implements SvcProduct {
 	public List<DtoProductList> getProducts(Integer category_id) {
 		return repoProductList.findByCategoryId(category_id);
 	}
+	
+	@Override
+	public ApiResponse updateProductStock(Integer id, Integer quantity) {
+	
+		Product p = repo.findProductById(id);
 
+		if(p == null) {
+			throw new ApiException(HttpStatus.BAD_REQUEST, "product does not exist");
+		}else {
+			if(p.getStock() <= quantity) 
+				throw new ApiException(HttpStatus.BAD_REQUEST, "product doesn't have enough stock");
+			Integer update = p.getStock() - quantity;
+			repo.updateProductStock(id, update);
+			return new ApiResponse("stock has been updated");
+			
+		}
+	}
 	@Override
 	public Product getProduct(String gtin) {
 		Product product = repo.findByGtinAndStatus(gtin, 1);
@@ -63,7 +79,6 @@ public class SvcProductImp implements SvcProduct {
 	
 	@Override
 	public ApiResponse updateProduct(Product in, Integer id) {
-		// Falta preguntar si el product existe
 		try {
 			repo.updateProduct(id, in.getGtin(), in.getProduct(), in.getDescription(), in.getPrice(), in.getStock());
 		} catch (DataIntegrityViolationException e) {

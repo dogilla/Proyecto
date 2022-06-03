@@ -5,6 +5,7 @@ import java.util.List;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
@@ -27,6 +28,12 @@ import com.product.exception.ApiException;
 @RestController
 @RequestMapping("/product")
 public class CtrlProduct {
+
+	private final SvcProduct productService;
+	@Autowired
+	CtrlProduct(SvcProduct productService) {
+		this.productService = productService;
+	}
 	
 	@Autowired
 	SvcProduct svc;
@@ -59,6 +66,18 @@ public class CtrlProduct {
 	public ResponseEntity<ApiResponse> deleteProduct(@PathVariable("id") Integer id){
 		return new ResponseEntity<ApiResponse>(svc.deleteProduct(id), HttpStatus.OK);
 	}
+	
+	@PutMapping(path = "/{product_id}/{quantity}")
+	ResponseEntity<ApiResponse> updateProductStock(@PathVariable(value = "product_id") int productId,
+												@PathVariable(value = "quantity") int quantity) {
+		try {
+			ApiResponse response = productService.updateProductStock(productId, quantity);
+		}catch(DataIntegrityViolationException e) {
+			if(e.getLocalizedMessage().contains("stock"))
+				throw new ApiException(HttpStatus.BAD_REQUEST, "we have not enough stock");
+		}
+		return new ResponseEntity<>(new ApiResponse("stock updated"), HttpStatus.OK);
+	}	
 	
 	@PutMapping("/{product_id}/category")
 	public ResponseEntity<ApiResponse> updateProductCategory(@PathVariable ("product_id") Integer product_id, 

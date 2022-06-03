@@ -56,7 +56,7 @@ public class SvcCustomerImp implements SvcCustomer{
 	
 	@Override
 	public ApiResponse updateCustomer(Customer in, Integer id) {
-		// Falta preguntar si el customer existe
+		
 		try {
 			repo.updateCustomer(id, in.getName(), in.getSurname(), in.getDate_birth(), in.getRfc(), in.getMail(), in.getAddress());
 		} catch (DataIntegrityViolationException e) {

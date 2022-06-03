@@ -15,5 +15,6 @@ public interface SvcProduct {
 	ApiResponse createProduct(Product in);
 	ApiResponse updateProduct(Product in, Integer id);
 	ApiResponse deleteProduct(Integer id);
+	ApiResponse updateProductStock(Integer id, Integer quantity);
 	
 }
